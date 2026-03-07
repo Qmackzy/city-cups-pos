@@ -9,6 +9,16 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
+                    @if ($errors->any())
+    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <strong>Terjadi kesalahan:</strong>
+        <ul class="mt-2 list-disc list-inside">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
                     @csrf
                     
                     <div class="mb-4">
@@ -30,6 +40,12 @@
                         <label class="block text-gray-700">Harga (Rp)</label>
                         <input type="number" name="price" class="w-full border-gray-300 rounded shadow-sm" required>
                     </div>
+
+                    <div class="mb-4">
+    <label class="block text-gray-700">Harga Modal / HPP (Rp)</label>
+    <input type="number" name="cost_price" class="w-full border-gray-300 rounded shadow-sm" required>
+    <p class="text-xs text-gray-400 mt-1">Digunakan untuk menghitung laba bersih di laporan.</p>
+</div>
 
                     <div class="mb-4">
                         <label class="block text-gray-700">Stok Awal</label>
