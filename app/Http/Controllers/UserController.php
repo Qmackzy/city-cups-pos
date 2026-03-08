@@ -45,7 +45,7 @@ class UserController extends Controller
 
         $user->name = $request->name;
         $user->email = $request->email;
-        
+
         // Logika mengaktifkan/nonaktifkan lewat checkbox
         $user->is_active = $request->has('is_active') ? 1 : 0;
 
@@ -61,7 +61,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        
+
         // Cek riwayat transaksi (opsional tapi disarankan)
         $hasTransactions = \App\Models\Transaction::where('user_id', $id)->exists();
 

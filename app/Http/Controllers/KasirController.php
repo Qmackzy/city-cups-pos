@@ -9,109 +9,127 @@ use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class KasirController extends Controller
 {
+    /**
+     * Menampilkan halaman transaksi kasir.
+     */
     public function index()
     {
-        // Ambil produk yang stoknya > 0 dan aktif
-        $products = Product::where('stock', '>', 0)
-                           ->where('is_active', true)
-                           ->get();
-        
-        // Ambil semua kategori untuk tab filter
-        $categories = Category::all(); 
-        
+        // Ambil produk yang aktif dan stoknya tersedia
+        $products = Product::where('is_active', true)
+            ->where('stock', '>', 0)
+            ->with('category')
+            ->get();
+
+        $categories = Category::all();
+
         return view('kasir.transaksi', compact('products', 'categories'));
     }
 
+    /**
+     * Menyimpan transaksi baru ke database.
+     */
     public function store(Request $request)
     {
+        // 1. Validasi Input yang ketat
         $request->validate([
-            'total_price' => 'required|numeric',
-            'pay_amount' => 'required|numeric',
-            'payment_method' => 'required|string',
-            'items' => 'required|array',
+            'total_price' => 'required|numeric|min:0',
+            'pay_amount' => 'required|numeric|min:0',
+            'payment_method' => 'required|string|in:cash,qris,debit,transfer',
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'required|exists:products,id',
+            'items.*.qty' => 'required|integer|min:1',
         ]);
 
-        // Validasi saldo: Hanya dicek jika metode pembayaran adalah 'cash'
+        // 2. Cek kecukupan saldo jika pembayaran tunai
         if ($request->payment_method === 'cash' && $request->pay_amount < $request->total_price) {
-            return back()->with('error', 'Uang bayar tidak cukup!');
+            return back()->with('error', 'Uang bayar tidak mencukupi total belanja!')->withInput();
         }
 
         DB::beginTransaction();
 
         try {
-            // Logika: Jika QRIS/Debit/Transfer, bayar = total (tidak ada kembalian manual)
+            // Hitung kembalian (jika non-cash, kembalian dianggap 0)
             $payAmount = $request->payment_method === 'cash' ? $request->pay_amount : $request->total_price;
-            $changeAmount = $payAmount - $request->total_price;
+            $changeAmount = max(0, $payAmount - $request->total_price);
 
-            // 1. Simpan Header Transaksi
+            // 3. Simpan Header Transaksi
             $transaction = Transaction::create([
                 'user_id' => auth()->id(),
-                'invoice_number' => 'INV-' . date('YmdHis'),
+                'invoice_number' => 'INV-' . now()->format('YmdHis') . '-' . auth()->id(),
                 'payment_method' => $request->payment_method,
                 'total_price' => $request->total_price,
                 'pay_amount' => $payAmount,
                 'change_amount' => $changeAmount,
             ]);
 
-            // 2. Simpan Detail Transaksi & Kurangi Stok
+            // 4. Proses setiap item (Detail & Stok)
             foreach ($request->items as $item) {
-                // Eager load ingredients untuk efisiensi pengurangan bahan baku
-                $product = Product::with('ingredients')->find($item['id']);
-                
+                // Gunakan lockForUpdate untuk mencegah tabrakan stok (race condition)
+                $product = Product::with('ingredients')->lockForUpdate()->find($item['id']);
+
+                // Validasi stok produk jadi
                 if (!$product || $product->stock < $item['qty']) {
-                    throw new \Exception("Stok untuk {$product->name} tidak cukup!");
+                    throw new \Exception("Stok untuk produk '{$product->name}' telah berubah atau tidak mencukupi.");
                 }
 
-                // Pengurangan Bahan Baku (Inventory System)
-                foreach ($product->ingredients as $ingredient) {
-                    $totalUsed = $ingredient->pivot->amount * $item['qty'];
-                    if ($ingredient->stock < $totalUsed) {
-                        throw new \Exception("Bahan baku {$ingredient->name} tidak cukup untuk membuat {$product->name}!");
+                // 5. Pengurangan Bahan Baku (Inventory System)
+                if ($product->ingredients->isNotEmpty()) {
+                    foreach ($product->ingredients as $ingredient) {
+                        $totalUsed = $ingredient->pivot->amount * $item['qty'];
+
+                        if ($ingredient->stock < $totalUsed) {
+                            throw new \Exception("Bahan baku '{$ingredient->name}' tidak cukup untuk membuat {$product->name}.");
+                        }
+
+                        // Kurangi stok bahan baku
+                        $ingredient->decrement('stock', $totalUsed);
                     }
-                    $ingredient->decrement('stock', $totalUsed);
                 }
 
-                // SIMPAN DETAIL DENGAN SNAPSHOT HPP (cost_price)
+                // 6. Simpan Detail Transaksi dengan Snapshot Harga
                 TransactionDetail::create([
                     'transaction_id' => $transaction->id,
                     'product_id'     => $product->id,
                     'qty'            => $item['qty'],
-                    'price'          => $product->price,       // Harga jual saat kejadian
-                    'cost_price'     => $product->cost_price,  // SNAPSHOT: Harga modal saat kejadian
+                    'price'          => $product->price,       // Harga jual saat ini
+                    'cost_price'     => $product->cost_price,  // Modal/HPP saat ini
                     'subtotal'       => $product->price * $item['qty'],
                 ]);
 
-                // Kurangi stok produk jadi
+                // 7. Kurangi stok produk jadi
                 $product->decrement('stock', $item['qty']);
             }
 
             DB::commit();
 
             return redirect()->route('kasir.transaksi')
-                ->with('success', 'Transaksi berhasil disimpan!')
+                ->with('success', 'Transaksi #' . $transaction->invoice_number . ' Berhasil!')
                 ->with('transaction_id', $transaction->id);
-
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Kesalahan: ' . $e->getMessage());
+            return back()->with('error', 'Gagal memproses transaksi: ' . $e->getMessage())->withInput();
         }
     }
 
+    /**
+     * Menampilkan view cetak struk.
+     */
     public function print($id)
     {
-        // Eager load detail dan produk untuk cetak struk
         $transaction = Transaction::with(['user', 'details.product'])->findOrFail($id);
         return view('kasir.print', compact('transaction'));
     }
 
-    public function checkShift() {
-    $activeShift = Shift::where('user_id', auth()->id())
-                        ->where('status', 'open')
-                        ->first();
-    return $activeShift;
-}
+    /**
+     * Cek apakah kasir memiliki shift yang masih terbuka.
+     */
+    public function checkShift()
+    {
+        return Shift::where('user_id', auth()->id())
+            ->where('status', 'open')
+            ->first();
+    }
 }
