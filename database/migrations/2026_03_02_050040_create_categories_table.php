@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             // Tambahkan kolom slug untuk URL yang SEO-friendly dan profesional
-            $table->string('slug')->unique();
             $table->timestamps();
         });
     }
