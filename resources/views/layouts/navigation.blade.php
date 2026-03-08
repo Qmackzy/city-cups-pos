@@ -14,7 +14,7 @@
                     </x-nav-link>
 
                     @if (Auth::user()->role == 'owner')
-                        {{-- Dropdown Manajemen Produk --}}
+                        {{-- Dropdown Manajemen Produk & Stok --}}
                         <div class="hidden sm:flex sm:items-center sm:ms-6">
                             <x-dropdown align="right" width="48">
                                 <x-slot name="trigger">
@@ -30,11 +30,26 @@
                                         </div>
                                     </button>
                                 </x-slot>
+
                                 <x-slot name="content">
-                                    <x-dropdown-link :href="route('products.index')">Daftar Produk</x-dropdown-link>
-                                    <x-dropdown-link :href="route('ingredients.index')">Stok Bahan Baku</x-dropdown-link>
-                                    <x-dropdown-link :href="route('waste.index')">Barang Rusak/Waste</x-dropdown-link>
-                                    <x-dropdown-link :href="route('expenses.index')">Pengeluaran</x-dropdown-link>
+                                    {{-- LINK KATEGORI (DESKTOP) --}}
+                                    <x-dropdown-link :href="route('categories.index')" :active="request()->routeIs('categories.*')">
+                                        {{ __('Daftar Kategori') }}
+                                    </x-dropdown-link>
+                                    <hr class="border-stone-100">
+
+                                    <x-dropdown-link :href="route('products.index')" :active="request()->routeIs('products.*')">
+                                        {{ __('Daftar Produk') }}
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('ingredients.index')">
+                                        {{ __('Stok Bahan Baku') }}
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('waste.index')">
+                                        {{ __('Barang Rusak/Waste') }}
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('expenses.index')">
+                                        {{ __('Pengeluaran') }}
+                                    </x-dropdown-link>
                                 </x-slot>
                             </x-dropdown>
                         </div>
@@ -55,6 +70,7 @@
                                         </div>
                                     </button>
                                 </x-slot>
+
                                 <x-slot name="content">
                                     <x-dropdown-link :href="route('owner.laporan')">Laporan Penjualan</x-dropdown-link>
                                     <x-dropdown-link :href="route('owner.shifts.index')">Laporan Shift</x-dropdown-link>
@@ -133,7 +149,7 @@
             @if (Auth::user()->role == 'owner')
                 <div class="px-4 py-3 text-[10px] font-black uppercase text-stone-400 tracking-[0.2em]">Produk & Stok
                 </div>
-                <x-responsive-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.index')">Daftar Kategori</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.*')">Daftar Kategori</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')">Daftar Produk</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('ingredients.index')" :active="request()->routeIs('ingredients.index')">Stok Bahan</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('waste.index')" :active="request()->routeIs('waste.index')">Barang Rusak</x-responsive-nav-link>
