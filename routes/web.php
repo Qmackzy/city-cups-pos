@@ -68,6 +68,8 @@ Route::middleware(['auth', 'role:owner'])->group(function () {
     Route::get('/owner/waste', [App\Http\Controllers\WasteController::class, 'index'])->name('waste.index');
     Route::post('/owner/waste', [App\Http\Controllers\WasteController::class, 'store'])->name('waste.store');
     Route::delete('/owner/waste/{id}', [App\Http\Controllers\WasteController::class, 'destroy'])->name('waste.destroy');
+
+    Route::resource('categories', CategoryController::class);
 });
 
 // --- 4. KHUSUS KASIR (Dengan Pengamanan Shift) ---

@@ -133,6 +133,7 @@
             @if (Auth::user()->role == 'owner')
                 <div class="px-4 py-3 text-[10px] font-black uppercase text-stone-400 tracking-[0.2em]">Produk & Stok
                 </div>
+                <x-responsive-nav-link :href="route('categories.index')" :active="request()->routeIs('products.index')">Daftar Produk</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')">Daftar Produk</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('ingredients.index')" :active="request()->routeIs('ingredients.index')">Stok Bahan</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('waste.index')" :active="request()->routeIs('waste.index')">Barang Rusak</x-responsive-nav-link>
