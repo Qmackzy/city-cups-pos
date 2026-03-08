@@ -10,17 +10,17 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
                     @if ($errors->any())
-    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-        <strong>Terjadi kesalahan:</strong>
-        <ul class="mt-2 list-disc list-inside">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+                        <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                            <strong>Terjadi kesalahan:</strong>
+                            <ul class="mt-2 list-disc list-inside">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     @csrf
-                    
+
                     <div class="mb-4">
                         <label class="block text-gray-700">Nama Produk</label>
                         <input type="text" name="name" class="w-full border-gray-300 rounded shadow-sm" required>
@@ -30,7 +30,7 @@
                         <label class="block text-gray-700">Kategori</label>
                         <select name="category_id" class="w-full border-gray-300 rounded shadow-sm" required>
                             <option value="">-- Pilih Kategori --</option>
-                            @foreach($categories as $cat)
+                            @foreach ($categories as $cat)
                                 <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                             @endforeach
                         </select>
@@ -42,10 +42,11 @@
                     </div>
 
                     <div class="mb-4">
-    <label class="block text-gray-700">Harga Modal / HPP (Rp)</label>
-    <input type="number" name="cost_price" class="w-full border-gray-300 rounded shadow-sm" required>
-    <p class="text-xs text-gray-400 mt-1">Digunakan untuk menghitung laba bersih di laporan.</p>
-</div>
+                        <label class="block text-gray-700">Harga Modal / HPP (Rp)</label>
+                        <input type="number" name="cost_price" class="w-full border-gray-300 rounded shadow-sm"
+                            required>
+                        <p class="text-xs text-gray-400 mt-1">Digunakan untuk menghitung laba bersih di laporan.</p>
+                    </div>
 
                     <div class="mb-4">
                         <label class="block text-gray-700">Stok Awal</label>
@@ -53,10 +54,11 @@
                     </div>
 
                     <div class="mb-4">
-        <label class="block text-gray-700">Gambar Produk (Opsional)</label>
-        <input type="file" name="image" class="w-full border-gray-300 rounded shadow-sm focus:ring-blue-500">
-        <p class="text-xs text-gray-400 mt-1">Format: JPG, PNG, JPEG. Maks: 2MB</p>
-    </div>
+                        <label class="block text-gray-700">Gambar Produk (Opsional)</label>
+                        <input type="file" name="image"
+                            class="w-full border-gray-300 rounded shadow-sm focus:ring-blue-500">
+                        <p class="text-xs text-gray-400 mt-1">Format: JPG, PNG, JPEG. Maks: 2MB</p>
+                    </div>
 
                     <div class="flex items-center justify-end mt-4">
                         <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">

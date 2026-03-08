@@ -10,16 +10,16 @@ use Illuminate\Support\Facades\Auth;
 class ShiftController extends Controller
 {
 
-public function index()
-{
-    // Mengambil semua shift yang sudah ditutup, diurutkan dari yang terbaru
-    $shifts = \App\Models\Shift::with('user')
-                ->where('status', 'closed')
-                ->latest()
-                ->paginate(10);
+    public function index()
+    {
+        // Mengambil semua shift yang sudah ditutup, diurutkan dari yang terbaru
+        $shifts = \App\Models\Shift::with('user')
+            ->where('status', 'closed')
+            ->latest()
+            ->paginate(10);
 
-    return view('owner.shifts.index', compact('shifts'));
-}
+        return view('owner.shifts.index', compact('shifts'));
+    }
     /**
      * Menampilkan form Buka Shift (Mulai Kerja)
      */
@@ -27,8 +27,8 @@ public function index()
     {
         // Jika sudah ada shift yang open, langsung arahkan ke transaksi
         $existingShift = Shift::where('user_id', Auth::id())
-                              ->where('status', 'open')
-                              ->first();
+            ->where('status', 'open')
+            ->first();
 
         if ($existingShift) {
             return redirect()->route('kasir.transaksi');
@@ -62,14 +62,14 @@ public function index()
     public function close()
     {
         $shift = Shift::where('user_id', Auth::id())
-                      ->where('status', 'open')
-                      ->firstOrFail();
+            ->where('status', 'open')
+            ->firstOrFail();
 
         // Hitung total penjualan CASH sejak shift dimulai
         $totalCashSales = Transaction::where('user_id', Auth::id())
-                            ->where('payment_method', 'cash')
-                            ->where('created_at', '>=', $shift->start_time)
-                            ->sum('total_price');
+            ->where('payment_method', 'cash')
+            ->where('created_at', '>=', $shift->start_time)
+            ->sum('total_price');
 
         // Uang yang seharusnya ada di laci (Modal Awal + Total Penjualan Tunai)
         $expectedCash = $shift->starting_cash + $totalCashSales;
@@ -87,14 +87,14 @@ public function index()
         ]);
 
         $shift = Shift::where('user_id', Auth::id())
-                      ->where('status', 'open')
-                      ->firstOrFail();
+            ->where('status', 'open')
+            ->firstOrFail();
 
         // Hitung ulang ekspektasi untuk validasi akhir
         $totalCashSales = Transaction::where('user_id', Auth::id())
-                            ->where('payment_method', 'cash')
-                            ->where('created_at', '>=', $shift->start_time)
-                            ->sum('total_price');
+            ->where('payment_method', 'cash')
+            ->where('created_at', '>=', $shift->start_time)
+            ->sum('total_price');
 
         $expectedCash = $shift->starting_cash + $totalCashSales;
         $actualCash = $request->total_cash_actual;

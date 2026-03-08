@@ -11,11 +11,11 @@ class Waste extends Model
 
     // Tambahkan kolom-kolom yang boleh diisi di sini
     protected $fillable = [
-        'ingredient_id', 
-        'amount', 
-        'reason', 
-        'waste_date', 
-        'loss_amount', 
+        'ingredient_id',
+        'amount',
+        'reason',
+        'waste_date',
+        'loss_amount',
         'user_id'
     ];
 

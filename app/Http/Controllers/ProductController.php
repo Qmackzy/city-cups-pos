@@ -119,7 +119,7 @@ class ProductController extends Controller
     /* -------------------------------------------------------------------------- */
     /* BAGIAN LAPORAN (PERBAIKAN UTAMA)                   */
     /* -------------------------------------------------------------------------- */
-   public function report(Request $request)
+    public function report(Request $request)
     {
         // 1. Tentukan rentang tanggal (WAJIB PALING ATAS)
         $startDate = $request->input('start_date', date('Y-m-d'));
@@ -127,28 +127,28 @@ class ProductController extends Controller
 
         // 2. Total Omzet
         $totalRevenue = Transaction::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-                        ->sum('total_price');
+            ->sum('total_price');
 
         // 3. Total HPP (Cost of Goods Sold)
-        $totalCOGS = TransactionDetail::whereHas('transaction', function($q) use ($startDate, $endDate) {
-                            $q->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
-                        })
-                        ->selectRaw('SUM(qty * cost_price) as total_hpp')
-                        ->first()->total_hpp ?? 0;
+        $totalCOGS = TransactionDetail::whereHas('transaction', function ($q) use ($startDate, $endDate) {
+            $q->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+        })
+            ->selectRaw('SUM(qty * cost_price) as total_hpp')
+            ->first()->total_hpp ?? 0;
 
         // 4. Total Pengeluaran Operasional (Expenses)
         $totalExpenses = 0;
         if (Schema::hasTable('expenses')) {
             $totalExpenses = DB::table('expenses')
-                            ->whereBetween('date', [$startDate, $endDate])
-                            ->sum('amount') ?? 0;
+                ->whereBetween('date', [$startDate, $endDate])
+                ->sum('amount') ?? 0;
         }
 
         // 5. TOTAL WASTE LOSS (Pencatatan Barang Rusak) - FASE 2
         $totalWasteLoss = 0;
         if (Schema::hasTable('wastes')) {
             $totalWasteLoss = \App\Models\Waste::whereBetween('waste_date', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-                                ->sum('loss_amount');
+                ->sum('loss_amount');
         }
 
         // 6. Laba Bersih (Revenue - HPP - Pengeluaran - Waste)
@@ -156,23 +156,23 @@ class ProductController extends Controller
 
         // 7. Ringkasan Bulanan & Daftar Transaksi
         $monthlyReport = Transaction::whereMonth('created_at', date('m'))
-                        ->whereYear('created_at', date('Y'))
-                        ->sum('total_price');
+            ->whereYear('created_at', date('Y'))
+            ->sum('total_price');
 
         $transactions = Transaction::with('user')
-                        ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-                        ->latest()
-                        ->get();
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->latest()
+            ->get();
 
         return view('owner.report', compact(
-            'totalRevenue', 
-            'totalCOGS', 
-            'totalExpenses', 
+            'totalRevenue',
+            'totalCOGS',
+            'totalExpenses',
             'totalWasteLoss', // Sekarang variabel ini sudah aman dikirim ke view
-            'netProfit', 
-            'monthlyReport', 
-            'transactions', 
-            'startDate', 
+            'netProfit',
+            'monthlyReport',
+            'transactions',
+            'startDate',
             'endDate'
         ));
     }
@@ -223,9 +223,9 @@ class ProductController extends Controller
             ->get();
 
         return view('dashboard', compact(
-            'totalProducts', 
-            'lowStockProducts', 
-            'todayEarnings', 
+            'totalProducts',
+            'lowStockProducts',
+            'todayEarnings',
             'todayTransactions',
             'chartLabels',
             'chartData',

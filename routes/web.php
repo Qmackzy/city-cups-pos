@@ -17,7 +17,7 @@ Route::get('/', function () {
 
 // --- 2. Group Rute Semua User Login (Auth & Verified) ---
 Route::middleware(['auth', 'verified'])->group(function () {
-    
+
     // Dashboard & Profile
     Route::get('/dashboard', [ProductController::class, 'dashboard'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -48,13 +48,13 @@ Route::middleware(['auth', 'role:owner'])->group(function () {
 
     // CRUD Produk
     Route::resource('owner/products', ProductController::class)->names('products');
-    
+
     // Resep & Ingredients
     Route::get('/owner/products/{id}/recipe', [ProductController::class, 'manageRecipe'])->name('products.recipe');
     Route::post('/owner/products/{id}/recipe', [ProductController::class, 'storeRecipe'])->name('products.recipe.store');
     Route::resource('ingredients', IngredientController::class);
     Route::post('ingredients/{id}/add-stock', [IngredientController::class, 'addStock'])->name('ingredients.addStock');
-    
+
     // Pengeluaran
     Route::resource('expenses', ExpenseController::class)->only(['index', 'store', 'destroy']);
 
@@ -71,4 +71,4 @@ Route::middleware(['auth', 'role:kasir', 'check.shift'])->group(function () {
     Route::post('/kasir/transaksi', [KasirController::class, 'store'])->name('kasir.store');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -57,7 +57,7 @@ class IngredientController extends Controller
         $request->validate([
             'amount' => 'required|numeric|min:1'
         ]);
-        
+
         $ingredient = Ingredient::findOrFail($id);
         $ingredient->increment('stock', $request->amount);
 
@@ -68,7 +68,7 @@ class IngredientController extends Controller
     public function destroy($id)
     {
         $ingredient = Ingredient::findOrFail($id);
-        
+
         // Proteksi: Jangan hapus jika bahan masih dipakai di resep produk mana pun
         if ($ingredient->products()->exists()) {
             return redirect()->back()->with('error', 'Bahan tidak bisa dihapus karena masih digunakan dalam resep!');

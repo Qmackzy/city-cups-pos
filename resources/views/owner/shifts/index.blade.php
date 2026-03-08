@@ -20,19 +20,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($shifts as $shift)
-                        <tr>
-                            <td class="p-3 border">{{ $shift->user->name }}</td>
-                            <td class="p-3 border text-sm">
-                                {{ $shift->start_time }} s/d <br> {{ $shift->end_time }}
-                            </td>
-                            <td class="p-3 border text-right">Rp {{ number_format($shift->starting_cash) }}</td>
-                            <td class="p-3 border text-right">Rp {{ number_format($shift->total_cash_expected) }}</td>
-                            <td class="p-3 border text-right">Rp {{ number_format($shift->total_cash_actual) }}</td>
-                            <td class="p-3 border text-right font-bold {{ $shift->difference < 0 ? 'text-red-600' : 'text-green-600' }}">
-                                Rp {{ number_format($shift->difference) }}
-                            </td>
-                        </tr>
+                        @foreach ($shifts as $shift)
+                            <tr>
+                                <td class="p-3 border">{{ $shift->user->name }}</td>
+                                <td class="p-3 border text-sm">
+                                    {{ $shift->start_time }} s/d <br> {{ $shift->end_time }}
+                                </td>
+                                <td class="p-3 border text-right">Rp {{ number_format($shift->starting_cash) }}</td>
+                                <td class="p-3 border text-right">Rp {{ number_format($shift->total_cash_expected) }}
+                                </td>
+                                <td class="p-3 border text-right">Rp {{ number_format($shift->total_cash_actual) }}</td>
+                                <td
+                                    class="p-3 border text-right font-bold {{ $shift->difference < 0 ? 'text-red-600' : 'text-green-600' }}">
+                                    Rp {{ number_format($shift->difference) }}
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>

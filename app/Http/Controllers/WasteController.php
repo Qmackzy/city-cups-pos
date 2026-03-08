@@ -15,7 +15,7 @@ class WasteController extends Controller
     public function index()
     {
         $wastes = Waste::with(['ingredient', 'user'])->latest()->paginate(10);
-        $ingredients = Ingredient::all(); 
+        $ingredients = Ingredient::all();
 
         return view('owner.waste.index', compact('wastes', 'ingredients'));
     }

@@ -9,14 +9,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Product extends Model
 {
     protected $fillable = [
-    'name',
-    'category_id',
-    'price',
-    'cost_price', // <--- PASTIKAN INI ADA
-    'stock',
-    'image',
-    'is_active',
-];
+        'name',
+        'category_id',
+        'price',
+        'cost_price', // <--- PASTIKAN INI ADA
+        'stock',
+        'image',
+        'is_active',
+    ];
 
     // Relasi ke Kategori
     public function category(): BelongsTo
@@ -32,7 +32,7 @@ class Product extends Model
     }
 
     public function ingredients()
-{
-    return $this->belongsToMany(Ingredient::class)->withPivot('amount');
-}
+    {
+        return $this->belongsToMany(Ingredient::class)->withPivot('amount');
+    }
 }
