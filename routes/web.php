@@ -6,8 +6,9 @@ use App\Http\Controllers\KasirController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\ShiftController; // 1. Pastikan ShiftController di-import
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 // --- 1. Halaman Publik ---
@@ -17,6 +18,11 @@ Route::get('/', function () {
 
 // --- 2. Group Rute Semua User Login (Auth & Verified) ---
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::get('/fix-storage', function () {
+        Artisan::call('storage:link');
+        return 'Storage link created!';
+    });
 
     // Dashboard & Profile
     Route::get('/dashboard', [ProductController::class, 'dashboard'])->name('dashboard');
