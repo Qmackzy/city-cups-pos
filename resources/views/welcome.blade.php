@@ -27,11 +27,6 @@
                         <a href="{{ route('login') }}"
                             class="px-4 py-2 text-stone-600 font-medium text-sm sm:text-base hover:text-orange-800 transition">Log
                             in</a>
-
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}"
-                                class="px-4 py-2 border-2 border-orange-800 text-orange-800 rounded-lg text-sm sm:text-base font-bold hover:bg-orange-800 hover:text-white transition">Register</a>
-                        @endif
                     @endauth
                 @endif
             </div>
