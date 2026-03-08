@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            // Tambahkan kolom slug untuk URL yang SEO-friendly dan profesional
+            $table->string('slug')->unique(); // Pastikan ini ada di sini
             $table->timestamps();
         });
     }
